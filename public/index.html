@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZiVPN Manager - Advanced VPN Control Center</title>
+    <meta name="description" content="Advanced VPN Manager with SSH Tunneling and Web Interface">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="images/logo.svg" alt="ZiVPN Logo" class="logo-img">
+                <span class="logo-text">ZiVPN Manager</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#dashboard" class="nav-link active" data-section="dashboard">
+                    <i class="icon-dashboard"></i> Dashboard
+                </a>
+                <a href="#tunnels" class="nav-link" data-section="tunnels">
+                    <i class="icon-tunnel"></i> Tunnels
+                </a>
+                <a href="#proxies" class="nav-link" data-section="proxies">
+                    <i class="icon-proxy"></i> Proxies
+                </a>
+                <a href="#config" class="nav-link" data-section="config">
+                    <i class="icon-config"></i> Configuration
+                </a>
+                <a href="#logs" class="nav-link" data-section="logs">
+                    <i class="icon-logs"></i> Logs
+                </a>
+                <div class="nav-dropdown">
+                    <button class="nav-link dropdown-toggle">
+                        <i class="icon-user"></i>
+                        <span id="username-display">Admin</span>
+                        <i class="icon-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="#profile" class="dropdown-item" data-action="profile">
+                            <i class="icon-user"></i> Profile
+                        </a>
+                        <a href="#settings" class="dropdown-item" data-action="settings">
+                            <i class="icon-settings"></i> Settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item" data-action="logout">
+                            <i class="icon-logout"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section active">
+            <div class="section-header">
+                <h1>Dashboard</h1>
+                <p>Monitor your VPN connections and system status</p>
+            </div>
+
+            <!-- Status Cards -->
+            <div class="dashboard-grid">
+                <div class="status-card">
+                    <div class="card-icon">
+                        <i class="icon-connection status-connected"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 id="active-connections-count">0</h3>
+                        <p>Active Connections</p>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="card-icon">
+                        <i class="icon-server"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 id="total-connections-count">0</h3>
+                        <p>Total Connections</p>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="card-icon">
+                        <i class="icon-clock"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 id="uptime-display">00:00:00</h3>
+                        <p>System Uptime</p>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="card-icon">
+                        <i class="icon-memory"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 id="memory-usage">0 MB</h3>
+                        <p>Memory Usage</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Connections Table -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2>Active Connections</h2>
+                    <button class="btn btn-primary" id="refresh-connections">
+                        <i class="icon-refresh"></i> Refresh
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="connections-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Last Activity</th>
+                                <th>Bytes Transferred</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="connections-tbody">
+                            <tr>
+                                <td colspan="7" class="text-center">No active connections</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- System Information -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2>System Information</h2>
+                    <button class="btn btn-secondary" id="refresh-system">
+                        <i class="icon-refresh"></i> Refresh
+                    </button>
+                </div>
+                <div class="system-info-grid">
+                    <div class="info-card">
+                        <h4>System</h4>
+                        <p id="system-platform">Loading...</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>Architecture</h4>
+                        <p id="system-arch">Loading...</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>CPU Cores</h4>
+                        <p id="system-cpus">Loading...</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>Node.js Version</h4>
+                        <p id="node-version">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tunnels Section -->
+        <section id="tunnels" class="content-section">
+            <div class="section-header">
+                <h1>SSH Tunnels</h1>
+                <button class="btn btn-primary" id="create-tunnel-btn">
+                    <i class="icon-plus"></i> Create Tunnel
+                </button>
+            </div>
+
+            <!-- Tunnels List -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Configured Tunnels</h2>
+                    <div class="card-actions">
+                        <input type="text" class="form-input" id="tunnel-search" placeholder="Search tunnels...">
+                        <button class="btn btn-secondary" id="export-tunnels">
+                            <i class="icon-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="tunnel-list" id="tunnel-list">
+                        <!-- Tunnel items will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Proxies Section -->
+        <section id="proxies" class="content-section">
+            <div class="section-header">
+                <h1>HTTP Proxies</h1>
+                <button class="btn btn-primary" id="create-proxy-btn">
+                    <i class="icon-plus"></i> Create Proxy
+                </button>
+            </div>
+
+            <!-- Proxies List -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Active Proxies</h2>
+                    <div class="card-actions">
+                        <input type="text" class="form-input" id="proxy-search" placeholder="Search proxies...">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="proxy-list" id="proxy-list">
+                        <!-- Proxy items will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Configuration Section -->
+        <section id="config" class="content-section">
+            <div class="section-header">
+                <h1>Configuration</h1>
+                <div class="config-actions">
+                    <button class="btn btn-secondary" id="export-config">
+                        <i class="icon-download"></i> Export Config
+                    </button>
+                    <button class="btn btn-primary" id="import-config">
+                        <i class="icon-upload"></i> Import Config
+                    </button>
+                </div>
+            </div>
+
+            <div class="config-grid">
+                <!-- Global Configuration -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2>Global Settings</h2>
+                        <button class="btn btn-sm btn-primary" id="save-global-config">
+                            Save Changes
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <form id="global-config-form">
+                            <div class="form-group">
+                                <label for="enable-logging">Enable Logging</label>
+                                <input type="checkbox" id="enable-logging" name="enableLogging">
+                            </div>
+                            <div class="form-group">
+                                <label for="log-level">Log Level</label>
+                                <select id="log-level" name="logLevel">
+                                    <option value="error">Error</option>
+                                    <option value="warn">Warning</option>
+                                    <option value="info" selected>Info</option>
+                                    <option value="debug">Debug</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="max-connections">Max Connections</label>
+                                <input type="number" id="max-connections" name="maxConnections" min="1" max="1000">
+                            </div>
+                            <div class="form-group">
+                                <label for="default-reconnect-delay">Default Reconnect Delay (ms)</label>
+                                <input type="number" id="default-reconnect-delay" name="defaultReconnectDelay" min="1000" max="300000">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- SSH Configuration -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2>SSH Settings</h2>
+                        <button class="btn btn-sm btn-primary" id="save-ssh-config">
+                            Save Changes
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <form id="ssh-config-form">
+                            <div class="form-group">
+                                <label for="ssh-default-port">Default Port</label>
+                                <input type="number" id="ssh-default-port" name="defaultPort" min="1" max="65535">
+                            </div>
+                            <div class="form-group">
+                                <label for="connection-timeout">Connection Timeout (ms)</label>
+                                <input type="number" id="connection-timeout" name="connectionTimeout" min="1000" max="60000">
+                            </div>
+                            <div class="form-group">
+                                <label for="keep-alive-interval">Keep Alive Interval (ms)</label>
+                                <input type="number" id="keep-alive-interval" name="keepAliveInterval" min="1000" max="300000">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Proxy Configuration -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2>Proxy Settings</h2>
+                        <button class="btn btn-sm btn-primary" id="save-proxy-config">
+                            Save Changes
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <form id="proxy-config-form">
+                            <div class="form-group">
+                                <label for="proxy-default-port">Default Port</label>
+                                <input type="number" id="proxy-default-port" name="defaultPort" min="1024" max="65535">
+                            </div>
+                            <div class="form-group">
+                                <label for="enable-proxy-auth">Enable Authentication</label>
+                                <input type="checkbox" id="enable-proxy-auth" name="enableAuth">
+                            </div>
+                            <div class="form-group">
+                                <label for="enable-proxy-logging">Enable Logging</label>
+                                <input type="checkbox" id="enable-proxy-logging" name="enableLogging">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Logs Section -->
+        <section id="logs" class="content-section">
+            <div class="section-header">
+                <h1>System Logs</h1>
+                <div class="log-controls">
+                    <select id="log-level-filter" class="form-input">
+                        <option value="">All Levels</option>
+                        <option value="error">Error</option>
+                        <option value="warn">Warning</option>
+                        <option value="info">Info</option>
+                        <option value="debug">Debug</option>
+                    </select>
+                    <button class="btn btn-primary" id="refresh-logs">
+                        <i class="icon-refresh"></i> Refresh
+                    </button>
+                    <button class="btn btn-secondary" id="clear-logs">
+                        <i class="icon-trash"></i> Clear
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Recent Logs</h2>
+                    <div class="log-stats">
+                        <span id="log-count">0 entries</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="log-container" id="log-container">
+                        <!-- Logs will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <!-- Create Tunnel Modal -->
+    <div id="create-tunnel-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New SSH Tunnel</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="create-tunnel-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="tunnel-name">Tunnel Name *</label>
+                            <input type="text" id="tunnel-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tunnel-host">SSH Host *</label>
+                            <input type="text" id="tunnel-host" name="host" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tunnel-port">SSH Port</label>
+                            <input type="number" id="tunnel-port" name="port" value="22" min="1" max="65535">
+                        </div>
+                        <div class="form-group">
+                            <label for="tunnel-username">Username *</label>
+                            <input type="text" id="tunnel-username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tunnel-password">Password</label>
+                            <input type="password" id="tunnel-password" name="password">
+                        </div>
+                        <div class="form-group">
+                            <label for="tunnel-private-key">Private Key</label>
+                            <textarea id="tunnel-private-key" name="privateKey" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="local-port">Local Port *</label>
+                            <input type="number" id="local-port" name="localPort" value="1080" min="1024" max="65535" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="remote-host">Remote Host</label>
+                            <input type="text" id="remote-host" name="remoteHost" value="localhost">
+                        </div>
+                        <div class="form-group">
+                            <label for="remote-port">Remote Port *</label>
+                            <input type="number" id="remote-port" name="remotePort" value="80" min="1" max="65535" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="auto-reconnect" name="autoReconnect" checked>
+                            <span class="checkmark"></span>
+                            Auto-reconnect on disconnection
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reconnect-delay">Reconnect Delay (ms)</label>
+                        <input type="number" id="reconnect-delay" name="reconnectDelay" value="5000" min="1000" max="300000">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-tunnel">Create Tunnel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Proxy Modal -->
+    <div id="create-proxy-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create HTTP Proxy</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="create-proxy-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="proxy-name">Proxy Name *</label>
+                            <input type="text" id="proxy-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="proxy-port">Port *</label>
+                            <input type="number" id="proxy-port" name="port" value="8080" min="1024" max="65535" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bind-address">Bind Address</label>
+                            <input type="text" id="bind-address" name="bindAddress" value="127.0.0.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="proxy-username">Username</label>
+                            <input type="text" id="proxy-username" name="username">
+                        </div>
+                        <div class="form-group">
+                            <label for="proxy-password">Password</label>
+                            <input type="password" id="proxy-password" name="password">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-proxy">Create Proxy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content login-modal">
+            <div class="modal-header">
+                <h2>ZiVPN Manager Login</h2>
+            </div>
+            <div class="modal-body">
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-username">Username</label>
+                        <input type="text" id="login-username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="remember-me" name="rememberMe">
+                            <span class="checkmark"></span>
+                            Remember me
+                        </label>
+                    </div>
+                </form>
+                <div class="login-footer">
+                    <p>Default credentials: <strong>admin</strong> / <strong>admin123</strong></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-full" id="login-btn">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/websocket.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/tunnels.js"></script>
+    <script src="js/proxies.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/logs.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/utils.js"></script>
+</body>
+</html>

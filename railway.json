@@ -1,0 +1,30 @@
+{
+  "build": {
+    "builder": "nixpacks",
+    "buildCommand": "npm ci --only=production",
+    "watchPatterns": ["src/**", "public/**"]
+  },
+  "deploy": {
+    "startCommand": "npm start",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10,
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 100,
+    "restartDelaySeconds": 30
+  },
+  "environments": {
+    "production": {
+      "NODE_ENV": "production",
+      "VPN_MAX_CONNECTIONS": 200,
+      "RATE_LIMIT_MAX_REQUESTS": 200
+    },
+    "development": {
+      "NODE_ENV": "development",
+      "VPN_MAX_CONNECTIONS": 50,
+      "LOG_LEVEL": "debug"
+    }
+  },
+  "domains": [
+    "zivpn-manager.railway.app"
+  ]
+}
